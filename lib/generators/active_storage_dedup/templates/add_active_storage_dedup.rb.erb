@@ -1,0 +1,41 @@
+class AddActiveStorageDedup < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def up
+    # Add reference_count column to active_storage_blobs
+    unless column_exists?(:active_storage_blobs, :reference_count)
+      add_column :active_storage_blobs, :reference_count, :integer, default: 0, null: false
+    end
+
+    # Add composite index on checksum and service_name for deduplication lookups
+    unless index_exists?(:active_storage_blobs, [:checksum, :service_name])
+      add_index :active_storage_blobs, [:checksum, :service_name], name: "index_active_storage_blobs_on_checksum_and_service"
+    end
+
+    # Backfill reference_count with actual attachment counts
+    # Using SQL for efficiency with large datasets
+    execute <<-SQL.squish
+      UPDATE active_storage_blobs
+      SET reference_count = (
+        SELECT COUNT(*)
+        FROM active_storage_attachments
+        WHERE active_storage_attachments.blob_id = active_storage_blobs.id
+      )
+    SQL
+
+    puts "ActiveStorageDedup migration complete!"
+    puts "  - Added reference_count column to active_storage_blobs"
+    puts "  - Added composite index on [checksum, service_name]"
+    puts "  - Backfilled reference_count for #{ActiveStorage::Blob.count} existing blobs"
+  end
+
+  def down
+    # Remove index
+    if index_exists?(:active_storage_blobs, [:checksum, :service_name])
+      remove_index :active_storage_blobs, name: "index_active_storage_blobs_on_checksum_and_service"
+    end
+
+    # Remove column
+    if column_exists?(:active_storage_blobs, :reference_count)
+      remove_column :active_storage_blobs, :reference_count
+    end
+  end
+end

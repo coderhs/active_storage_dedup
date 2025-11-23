@@ -1,0 +1,44 @@
+===============================================================================
+
+ActiveStorageDedup has been installed!
+
+Next steps:
+
+1. Run the migration:
+   rails db:migrate
+
+2. Review the configuration in config/initializers/active_storage_dedup.rb
+   The initializer has been created with sensible defaults.
+
+3. Optional: Control deduplication per-attachment:
+
+   class Product < ApplicationRecord
+     has_many_attached :images                         # Uses config.deduplicate_by_default
+     has_one_attached :unique_badge, deduplicate: false # Override: don't deduplicate
+   end
+
+4. Optional: Backfill reference_count for existing blobs:
+   rails active_storage_dedup:backfill_reference_count
+
+5. Optional: Schedule sanity check job (recommended weekly/monthly):
+
+   # Run manually
+   ActiveStorageDedup::DeduplicationJob.perform_now
+
+   # Or via rake task
+   rails active_storage_dedup:cleanup_all
+
+   # Or schedule with whenever/sidekiq-cron
+   every 1.week do
+     runner "ActiveStorageDedup::DeduplicationJob.perform_later"
+   end
+
+Available rake tasks:
+  - rails active_storage_dedup:report_duplicates
+  - rails active_storage_dedup:cleanup_all
+  - rails active_storage_dedup:backfill_reference_count
+
+For more information, visit:
+https://github.com/yourusername/active_storage_dedup
+
+===============================================================================
