@@ -13,6 +13,10 @@ Automatic deduplication for Rails Active Storage. Prevents duplicate file upload
 - **Auto-Purge Orphans**: Automatically removes blobs when no attachments reference them
 - **Zero Dependencies**: Works with standard Rails Active Storage
 
+## Demo/Implementation APP
+
+[Github Repo](https://github.com/coderhs/rails-storage-example)
+
 ## Installation
 
 Add this line to your application's Gemfile:
