@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "Prevents duplicate file uploads in Active Storage by reusing existing blobs with matching checksums and service names"
   spec.homepage = "https://github.com/coderhs/active_storage_dedup"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.7.0"
+  spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/coderhs/active_storage_dedup"
@@ -32,8 +32,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
-  spec.add_dependency "activestorage", ">= 6.0.0"
-  spec.add_dependency "rails", ">= 6.0.0"
+  spec.add_dependency "activestorage", ">= 7.1.0"
+  spec.add_dependency "rails", ">= 7.1.0"
 
   # Development dependencies
   spec.add_development_dependency "combustion", "~> 1.3"
