@@ -30,9 +30,9 @@ RSpec.describe ActiveStorageDedup::BlobDeduplication do
         expect(blob).to be_present
         expect(blob.filename.to_s).to eq(filename)
 
-        expect {
+        expect do
           blob.save!
-        }.to change { ActiveStorage::Blob.count }.by(1)
+        end.to change { ActiveStorage::Blob.count }.by(1)
       end
 
       it "reuses existing blob with same checksum and service" do
@@ -142,7 +142,7 @@ RSpec.describe ActiveStorageDedup::BlobDeduplication do
       let(:checksum) { Digest::MD5.base64digest(test_file_content) }
 
       it "creates a new blob if no duplicate exists" do
-        expect {
+        expect do
           blob = ActiveStorage::Blob.create_before_direct_upload!(
             filename: filename,
             byte_size: test_file_content.bytesize,
@@ -152,7 +152,7 @@ RSpec.describe ActiveStorageDedup::BlobDeduplication do
             __dedup_attachment_name: :avatar
           )
           expect(blob).to be_persisted
-        }.to change { ActiveStorage::Blob.count }.by(1)
+        end.to change { ActiveStorage::Blob.count }.by(1)
       end
 
       it "reuses existing blob with same checksum and service" do
@@ -189,7 +189,7 @@ RSpec.describe ActiveStorageDedup::BlobDeduplication do
       let(:user) { User.create!(name: "Test User") }
 
       it "creates a new blob if no duplicate exists" do
-        expect {
+        expect do
           blob = ActiveStorage::Blob.create_after_unfurling!(
             io: StringIO.new(test_file_content),
             filename: filename,
@@ -197,7 +197,7 @@ RSpec.describe ActiveStorageDedup::BlobDeduplication do
             __dedup_attachment_name: :avatar
           )
           expect(blob).to be_persisted
-        }.to change { ActiveStorage::Blob.count }.by(1)
+        end.to change { ActiveStorage::Blob.count }.by(1)
       end
 
       it "reuses existing blob with same checksum" do

@@ -30,9 +30,9 @@ RSpec.describe ActiveStorageDedup::DeduplicationJob do
         )
 
         # Running with no duplicate groups (empty array)
-        expect {
-          run_job_with_duplicates() # No groups to process
-        }.not_to change { ActiveStorage::Blob.count }
+        expect do
+          run_job_with_duplicates # No groups to process
+        end.not_to(change { ActiveStorage::Blob.count })
 
         expect(ActiveStorage::Blob.exists?(blob.id)).to be true
       end
@@ -73,8 +73,6 @@ RSpec.describe ActiveStorageDedup::DeduplicationJob do
       end
 
       it "keeps the oldest blob" do
-        initial_count = ActiveStorage::Blob.count
-
         run_job_with_duplicates([checksum, service_name])
 
         # The keeper should still exist
@@ -156,8 +154,6 @@ RSpec.describe ActiveStorageDedup::DeduplicationJob do
         # This test verifies the deduplication logic intent
         # Note: Due to SQLite/transaction limitations, physical deletion may not occur in tests
         # but the core merge logic is verified in other specs
-        initial_count = ActiveStorage::Blob.count
-
         run_job_with_duplicates([checksum, service_name])
 
         # Verify the job ran without errors
@@ -201,9 +197,9 @@ RSpec.describe ActiveStorageDedup::DeduplicationJob do
         allow_any_instance_of(ActiveStorage::Blob).to receive(:delete).and_raise(StandardError, "Test error")
 
         # Should not raise error (errors are caught and logged inside merge_duplicate)
-        expect {
+        expect do
           run_job_with_duplicates([checksum, service_name])
-        }.not_to raise_error
+        end.not_to raise_error
 
         # Duplicate should still exist since merge failed
         expect(ActiveStorage::Blob.exists?(duplicate.id)).to be true

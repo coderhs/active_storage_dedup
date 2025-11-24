@@ -19,18 +19,24 @@ RSpec.describe ActiveStorageDedup::AttachmentExtension do
         filename: "test.txt"
       )
 
-      expect {
+      expect do
         user.avatar.attach(blob)
-      }.to change { blob.reload.reference_count }.from(0).to(1)
+      end.to change { blob.reload.reference_count }.from(0).to(1)
     end
 
     it "decrements reference_count when attachment is destroyed" do
       user.avatar.attach(io: test_file, filename: "test.txt")
       blob = user.avatar.blob
 
-      expect {
+      expect do
         user.avatar.purge
-      }.to change { blob.reload.reference_count rescue 0 }.from(1).to(0)
+      end.to change {
+               begin
+                 blob.reload.reference_count
+               rescue StandardError
+                 0
+               end
+             }.from(1).to(0)
     end
 
     it "tracks multiple attachments correctly" do
@@ -59,9 +65,9 @@ RSpec.describe ActiveStorageDedup::AttachmentExtension do
       user.avatar.attach(io: StringIO.new("test content"), filename: "test.txt")
       blob = user.avatar.blob
 
-      expect {
+      expect do
         user.avatar.purge
-      }.to change { ActiveStorage::Blob.exists?(blob.id) }.from(true).to(false)
+      end.to change { ActiveStorage::Blob.exists?(blob.id) }.from(true).to(false)
     end
 
     it "does not purge blob when other attachments exist" do
@@ -76,9 +82,9 @@ RSpec.describe ActiveStorageDedup::AttachmentExtension do
       user1.avatar.attach(blob)
       user2.avatar.attach(blob)
 
-      expect {
+      expect do
         user1.avatar.attachment.destroy
-      }.not_to change { ActiveStorage::Blob.exists?(blob.id) }
+      end.not_to(change { ActiveStorage::Blob.exists?(blob.id) })
 
       expect(blob.reload.reference_count).to eq(1)
     end
@@ -92,9 +98,9 @@ RSpec.describe ActiveStorageDedup::AttachmentExtension do
         user.avatar.attach(io: StringIO.new("test content"), filename: "test.txt")
         blob = user.avatar.blob
 
-        expect {
+        expect do
           user.avatar.attachment.destroy
-        }.not_to change { ActiveStorage::Blob.exists?(blob.id) }
+        end.not_to(change { ActiveStorage::Blob.exists?(blob.id) })
 
         expect(blob.reload.reference_count).to eq(0)
       end

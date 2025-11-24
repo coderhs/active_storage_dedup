@@ -23,10 +23,10 @@ module ActiveStorageDedup
 
       # Find all checksum+service combinations that have duplicates
       duplicate_groups = ActiveStorage::Blob
-        .select(:checksum, :service_name)
-        .group(:checksum, :service_name)
-        .having('COUNT(*) > 1')
-        .count
+                         .select(:checksum, :service_name)
+                         .group(:checksum, :service_name)
+                         .having("COUNT(*) > 1")
+                         .count
 
       if duplicate_groups.empty?
         Rails.logger.info "[ActiveStorageDedup] ✓ No duplicate blobs found - database is clean!"
@@ -36,7 +36,7 @@ module ActiveStorageDedup
       Rails.logger.info "[ActiveStorageDedup] Found #{duplicate_groups.size} group(s) with duplicates"
 
       total_merged = 0
-      duplicate_groups.each do |(checksum, service_name), count|
+      duplicate_groups.each_key do |(checksum, service_name)|
         merged = process_duplicate_group(checksum, service_name)
         total_merged += merged
       end
@@ -51,9 +51,9 @@ module ActiveStorageDedup
 
       # Find all blobs with same checksum and service
       duplicate_blobs = ActiveStorage::Blob
-        .where(checksum: checksum, service_name: service_name)
-        .order(:created_at)
-        .to_a
+                        .where(checksum: checksum, service_name: service_name)
+                        .order(:created_at)
+                        .to_a
 
       Rails.logger.debug "[ActiveStorageDedup] Found #{duplicate_blobs.size} blob(s) with checksum #{checksum[0..12]}..."
 
@@ -91,7 +91,7 @@ module ActiveStorageDedup
       Rails.logger.debug "[ActiveStorageDedup] Deleted duplicate blob #{duplicate.id} record"
 
       Rails.logger.info "[ActiveStorageDedup] ✓ Merged blob #{duplicate.id} (#{attachment_count} attachment(s)) into #{keeper.id}"
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error "[ActiveStorageDedup] ✗ Error merging blob #{duplicate.id}: #{e.class.name} - #{e.message}"
       Rails.logger.debug "[ActiveStorageDedup] Error backtrace: #{e.backtrace.first(5).join("\n")}"
       # Don't raise - allow job to complete for other duplicates

@@ -32,13 +32,13 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
-  spec.add_dependency "rails", ">= 6.0.0"
   spec.add_dependency "activestorage", ">= 6.0.0"
+  spec.add_dependency "rails", ">= 6.0.0"
 
   # Development dependencies
+  spec.add_development_dependency "combustion", "~> 1.3"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rspec-rails"
-  spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "simplecov"
-  spec.add_development_dependency "combustion", "~> 1.3"
+  spec.add_development_dependency "sqlite3"
 end

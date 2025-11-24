@@ -7,10 +7,10 @@ namespace :active_storage_dedup do
 
     # Group blobs by checksum and service_name, find groups with duplicates
     duplicate_groups = ActiveStorage::Blob
-      .select("checksum, service_name, COUNT(*) as blob_count")
-      .group(:checksum, :service_name)
-      .having("COUNT(*) > 1")
-      .order("blob_count DESC")
+                       .select("checksum, service_name, COUNT(*) as blob_count")
+                       .group(:checksum, :service_name)
+                       .having("COUNT(*) > 1")
+                       .order("blob_count DESC")
 
     if duplicate_groups.empty?
       puts "No duplicate blobs found!"
@@ -22,8 +22,8 @@ namespace :active_storage_dedup do
 
     duplicate_groups.each do |group|
       blobs = ActiveStorage::Blob
-        .where(checksum: group.checksum, service_name: group.service_name)
-        .order(:created_at)
+              .where(checksum: group.checksum, service_name: group.service_name)
+              .order(:created_at)
 
       keeper = blobs.first
       duplicates = blobs[1..]
@@ -37,7 +37,7 @@ namespace :active_storage_dedup do
       puts "Filename: #{keeper.filename}"
       puts "Total blobs: #{blobs.count}"
       puts "Keeper blob ID: #{keeper.id} (#{keeper.attachments.count} attachments)"
-      puts "Duplicate blob IDs: #{duplicates.map(&:id).join(', ')}"
+      puts "Duplicate blob IDs: #{duplicates.map(&:id).join(", ")}"
       puts "Total attachments across duplicates: #{duplicates.sum { |b| b.attachments.count }}"
       puts "Wasted storage: #{format_bytes(wasted_bytes)}"
       puts "-" * 80
@@ -78,9 +78,7 @@ namespace :active_storage_dedup do
         updated += 1
       end
 
-      if (index + 1) % 100 == 0
-        puts "Processed #{index + 1}/#{total_blobs} blobs..."
-      end
+      puts "Processed #{index + 1}/#{total_blobs} blobs..." if ((index + 1) % 100).zero?
     end
 
     puts "\nBackfill complete!"
@@ -92,7 +90,7 @@ namespace :active_storage_dedup do
   def format_bytes(bytes)
     return "0 B" if bytes.zero?
 
-    units = ["B", "KB", "MB", "GB", "TB"]
+    units = %w[B KB MB GB TB]
     exp = (Math.log(bytes) / Math.log(1024)).floor
     exp = [exp, units.length - 1].min
 

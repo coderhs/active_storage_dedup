@@ -30,7 +30,7 @@ module ActiveStorageDedup
           actual_service_name = blob.service_name || service.name
           Rails.logger.debug "[ActiveStorageDedup] Checking for duplicates: checksum=#{blob.checksum[0..12]}..., service=#{actual_service_name}"
 
-          if existing_blob = find_by(checksum: blob.checksum, service_name: actual_service_name)
+          if (existing_blob = find_by(checksum: blob.checksum, service_name: actual_service_name))
             Rails.logger.info "[ActiveStorageDedup] ✓ Reusing existing blob #{existing_blob.id} (checksum: #{blob.checksum[0..12]}..., service: #{actual_service_name})"
             return existing_blob
           end
@@ -43,7 +43,7 @@ module ActiveStorageDedup
       end
 
       # HOOK 2: Direct uploads to cloud storage
-      def create_before_direct_upload!(key: nil, filename:, byte_size:, checksum:,
+      def create_before_direct_upload!(filename:, byte_size:, checksum:, key: nil,
                                        content_type: nil, metadata: nil,
                                        service_name: nil,
                                        __dedup_record: nil, __dedup_attachment_name: nil, **options)
@@ -69,7 +69,7 @@ module ActiveStorageDedup
         Rails.logger.debug "[ActiveStorageDedup] Checking for duplicates: checksum=#{checksum[0..12]}..., service=#{actual_service_name}"
 
         # Check for existing blob
-        if existing_blob = find_by(checksum: checksum, service_name: actual_service_name)
+        if (existing_blob = find_by(checksum: checksum, service_name: actual_service_name))
           Rails.logger.info "[ActiveStorageDedup] ✓ Reusing existing blob #{existing_blob.id} for direct upload (checksum: #{checksum[0..12]}..., service: #{actual_service_name})"
           return existing_blob
         end
@@ -86,7 +86,7 @@ module ActiveStorageDedup
       end
 
       # HOOK 3: Fallback for programmatic attach (record.file.attach(io: ...))
-      def create_after_unfurling!(key: nil, io:, filename:, content_type: nil,
+      def create_after_unfurling!(io:, filename:, key: nil, content_type: nil,
                                   metadata: nil, service_name: nil, identify: true,
                                   __dedup_record: nil, __dedup_attachment_name: nil, **options)
         Rails.logger.debug "[ActiveStorageDedup] create_after_unfurling! called for #{filename}"

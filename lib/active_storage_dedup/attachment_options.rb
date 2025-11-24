@@ -7,7 +7,7 @@ module ActiveStorageDedup
       ActiveStorageDedup.register_attachment(self.name, name, deduplicate: deduplicate)
 
       super(name, dependent: dependent, service: service,
-            strict_loading: strict_loading, **options)
+                  strict_loading: strict_loading, **options)
     end
 
     def has_many_attached(name, dependent: :purge_later, service: nil,
@@ -15,7 +15,7 @@ module ActiveStorageDedup
       ActiveStorageDedup.register_attachment(self.name, name, deduplicate: deduplicate)
 
       super(name, dependent: dependent, service: service,
-            strict_loading: strict_loading, **options)
+                  strict_loading: strict_loading, **options)
     end
   end
 end

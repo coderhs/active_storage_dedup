@@ -27,9 +27,9 @@ RSpec.describe "active_storage_dedup rake tasks" do
         service_name: service_name
       )
 
-      expect {
+      expect do
         Rake::Task["active_storage_dedup:report_duplicates"].invoke
-      }.to output(/No duplicate blobs found!/).to_stdout
+      end.to output(/No duplicate blobs found!/).to_stdout
     end
 
     it "reports duplicate blobs with details" do
@@ -76,7 +76,7 @@ RSpec.describe "active_storage_dedup rake tasks" do
     end
 
     it "formats bytes correctly" do
-      keeper = ActiveStorage::Blob.create!(
+      ActiveStorage::Blob.create!(
         key: "keeper-key",
         filename: "large.txt",
         byte_size: 5_242_880,
@@ -85,7 +85,7 @@ RSpec.describe "active_storage_dedup rake tasks" do
         created_at: 1.hour.ago
       )
 
-      duplicate = ActiveStorage::Blob.create!(
+      ActiveStorage::Blob.create!(
         key: "dup-key",
         filename: "large.txt",
         byte_size: 5_242_880,
@@ -157,13 +157,13 @@ RSpec.describe "active_storage_dedup rake tasks" do
     it "runs the deduplication job" do
       expect(ActiveStorageDedup::DeduplicationJob).to receive(:perform_now)
 
-      expect {
+      expect do
         Rake::Task["active_storage_dedup:cleanup_all"].invoke
-      }.to output(/Running sanity check.*Cleanup complete/m).to_stdout
+      end.to output(/Running sanity check.*Cleanup complete/m).to_stdout
     end
 
     it "merges duplicate blobs" do
-      keeper = ActiveStorage::Blob.create!(
+      ActiveStorage::Blob.create!(
         key: "keeper-key",
         filename: "test.txt",
         byte_size: 100,
@@ -172,7 +172,7 @@ RSpec.describe "active_storage_dedup rake tasks" do
         created_at: 1.hour.ago
       )
 
-      duplicate = ActiveStorage::Blob.create!(
+      ActiveStorage::Blob.create!(
         key: "dup-key",
         filename: "test.txt",
         byte_size: 100,
@@ -188,7 +188,6 @@ RSpec.describe "active_storage_dedup rake tasks" do
       expect(initial_count).to eq(2)
 
       Rake::Task["active_storage_dedup:cleanup_all"].invoke
-
     end
   end
 
