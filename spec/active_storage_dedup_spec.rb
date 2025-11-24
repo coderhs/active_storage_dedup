@@ -5,7 +5,7 @@ RSpec.describe ActiveStorageDedup do
     expect(ActiveStorageDedup::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "is configured correctly" do
+    expect(ActiveStorageDedup.configuration).to be_a(ActiveStorageDedup::Configuration)
   end
 end
