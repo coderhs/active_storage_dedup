@@ -32,8 +32,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
-  spec.add_dependency "activestorage", ">= 7.1.0"
-  spec.add_dependency "rails", ">= 7.1.0"
+  spec.add_dependency "activestorage", ">= 7.2.0"
+  spec.add_dependency "rails", ">= 7.2.0"
 
   # Development dependencies
   spec.add_development_dependency "combustion", "~> 1.3"
