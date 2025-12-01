@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    active_storage_dedup (1.0.0.alpha)
-      activestorage (>= 6.0.0)
-      rails (>= 6.0.0)
+    active_storage_dedup (1.0.0.beta)
+      activestorage (>= 7.2.0)
+      rails (>= 7.2.0)
 
 GEM
   remote: https://rubygems.org/
