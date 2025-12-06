@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_storage_dedup (1.0.0.beta)
+    active_storage_dedup (1.0.0)
       activestorage (>= 7.2.0)
       rails (>= 7.2.0)
 
