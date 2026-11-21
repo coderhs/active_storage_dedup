@@ -41,6 +41,18 @@ RSpec.describe ActiveStorageDedup::Configuration do
       ActiveStorageDedup.logger.info "hello from spec"
       expect(io.string).to include("hello from spec")
     end
+
+    it "follows Rails.logger when it is replaced after first use" do
+      config = described_class.new
+      config.logger # first access
+
+      original = Rails.logger
+      replacement = Logger.new(StringIO.new)
+      Rails.logger = replacement
+      expect(config.logger).to be(replacement)
+    ensure
+      Rails.logger = original
+    end
   end
 
   describe "#deduplicate_enabled_for?" do
