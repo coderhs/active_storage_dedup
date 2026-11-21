@@ -16,6 +16,31 @@ RSpec.describe ActiveStorageDedup::Configuration do
       config = described_class.new
       expect(config.auto_purge_orphans).to be true
     end
+
+    it "uses Rails.logger by default" do
+      config = described_class.new
+      expect(config.logger).to eq(Rails.logger)
+    end
+  end
+
+  describe "#logger" do
+    around do |example|
+      original_configuration = ActiveStorageDedup.configuration
+      ActiveStorageDedup.configuration = described_class.new
+      example.run
+      ActiveStorageDedup.configuration = original_configuration
+    end
+
+    it "can be overridden with a custom logger" do
+      io = StringIO.new
+      custom_logger = Logger.new(io)
+      ActiveStorageDedup.configure { |c| c.logger = custom_logger }
+
+      expect(ActiveStorageDedup.logger).to be(custom_logger)
+
+      ActiveStorageDedup.logger.info "hello from spec"
+      expect(io.string).to include("hello from spec")
+    end
   end
 
   describe "#deduplicate_enabled_for?" do

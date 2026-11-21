@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "logger"
+
 module ActiveStorageDedup
   class Configuration
     # Master switch to enable/disable the entire gem (default: true)
@@ -15,11 +17,29 @@ module ActiveStorageDedup
     # Only applies when enabled = true
     attr_accessor :auto_purge_orphans
 
+    # Logger used by the gem (default: Rails.logger when Rails is loaded, else Logger.new($stdout))
+    # Set to any Logger-compatible object to redirect gem output, or to Logger.new(IO::NULL) to silence
+    attr_writer :logger
+
     def initialize
       @enabled = true
       @deduplicate_by_default = true
       @auto_purge_orphans = true
-      Rails.logger.debug "[ActiveStorageDedup] Configuration initialized with defaults: enabled=#{@enabled}, deduplicate_by_default=#{@deduplicate_by_default}, auto_purge_orphans=#{@auto_purge_orphans}" if defined?(Rails)
+      Rails.logger.debug "[ActiveStorageDedup] Configuration initialized with defaults: enabled=#{@enabled}, deduplicate_by_default=#{@deduplicate_by_default}, auto_purge_orphans=#{@auto_purge_orphans}" if defined?(Rails) && Rails.logger
+    end
+
+    def logger
+      @logger ||= default_logger
+    end
+
+    private
+
+    def default_logger
+      if defined?(Rails) && Rails.logger
+        Rails.logger
+      else
+        Logger.new($stdout)
+      end
     end
   end
 
@@ -30,10 +50,14 @@ module ActiveStorageDedup
       @configuration ||= Configuration.new
     end
 
+    def logger
+      configuration.logger
+    end
+
     def configure
-      Rails.logger.debug "[ActiveStorageDedup] Configuring ActiveStorageDedup..." if defined?(Rails)
+      logger.debug "[ActiveStorageDedup] Configuring ActiveStorageDedup..."
       yield(configuration)
-      Rails.logger.info "[ActiveStorageDedup] Configuration updated: enabled=#{configuration.enabled}, deduplicate_by_default=#{configuration.deduplicate_by_default}, auto_purge_orphans=#{configuration.auto_purge_orphans}" if defined?(Rails)
+      logger.info "[ActiveStorageDedup] Configuration updated: enabled=#{configuration.enabled}, deduplicate_by_default=#{configuration.deduplicate_by_default}, auto_purge_orphans=#{configuration.auto_purge_orphans}"
     end
 
     def enabled?
@@ -48,13 +72,13 @@ module ActiveStorageDedup
     def register_attachment(model_name, attachment_name, deduplicate:)
       key = "#{model_name}##{attachment_name}"
       attachment_settings[key] = { deduplicate: deduplicate }
-      Rails.logger.debug "[ActiveStorageDedup] Registered attachment #{key} with deduplicate=#{deduplicate}" if defined?(Rails)
+      logger.debug "[ActiveStorageDedup] Registered attachment #{key} with deduplicate=#{deduplicate}"
     end
 
     def deduplicate_enabled_for?(record, attachment_name)
       # First check: Is the gem enabled at all?
       unless configuration.enabled
-        Rails.logger.debug "[ActiveStorageDedup] Gem is disabled globally (enabled=false)" if defined?(Rails)
+        logger.debug "[ActiveStorageDedup] Gem is disabled globally (enabled=false)"
         return false
       end
 
@@ -66,10 +90,10 @@ module ActiveStorageDedup
       # Otherwise, fall back to configuration.deduplicate_by_default
       if settings.nil?
         result = configuration.deduplicate_by_default
-        Rails.logger.debug "[ActiveStorageDedup] Deduplication check for #{key}: #{result} (using deduplicate_by_default)" if defined?(Rails)
+        logger.debug "[ActiveStorageDedup] Deduplication check for #{key}: #{result} (using deduplicate_by_default)"
       else
         result = settings[:deduplicate]
-        Rails.logger.debug "[ActiveStorageDedup] Deduplication check for #{key}: #{result} (model-level override)" if defined?(Rails)
+        logger.debug "[ActiveStorageDedup] Deduplication check for #{key}: #{result} (model-level override)"
       end
 
       result

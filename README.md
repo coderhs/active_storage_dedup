@@ -84,6 +84,10 @@ ActiveStorageDedup.configure do |config|
 
   # Auto-purge blobs when reference_count reaches 0 (default: true)
   config.auto_purge_orphans = true
+
+  # Logger used by the gem (default: Rails.logger)
+  # Pass any Logger-compatible object, or silence the gem entirely with Logger.new(IO::NULL)
+  # config.logger = Logger.new(IO::NULL)
 end
 ```
 
@@ -367,6 +371,7 @@ end
 | `enabled` | `true` | Master switch - disables entire gem when false |
 | `deduplicate_by_default` | `true` | Default behavior for attachments (can be overridden) |
 | `auto_purge_orphans` | `true` | Automatically delete blobs when reference_count = 0 |
+| `logger` | `Rails.logger` | Logger used for gem output (set to `Logger.new(IO::NULL)` to silence) |
 
 ### Model Options
 

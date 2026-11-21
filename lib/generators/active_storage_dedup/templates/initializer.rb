@@ -16,6 +16,12 @@ ActiveStorageDedup.configure do |config|
   # When enabled, blobs are automatically deleted when no attachments reference them
   # Default: true
   config.auto_purge_orphans = true
+
+  # Logger used by the gem
+  # Default: Rails.logger
+  # Set to a custom logger to redirect gem output, or to silence it entirely:
+  #   config.logger = Logger.new(IO::NULL)
+  # config.logger = Rails.logger
 end
 
 # Usage Examples:

@@ -6,8 +6,8 @@ module ActiveStorageDedup
 
     # Patch Changes::CreateOne#find_or_build_blob to pass context
     def find_or_build_blob
-      Rails.logger.debug "[ActiveStorageDedup] ChangesExtension#find_or_build_blob called for #{name} attachment"
-      Rails.logger.debug "[ActiveStorageDedup] Attachable type: #{attachable.class.name}"
+      ActiveStorageDedup.logger.debug "[ActiveStorageDedup] ChangesExtension#find_or_build_blob called for #{name} attachment"
+      ActiveStorageDedup.logger.debug "[ActiveStorageDedup] Attachable type: #{attachable.class.name}"
 
       case attachable
       when ActiveStorage::Blob
