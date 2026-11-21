@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- Add `config.logger` to route gem output to a custom logger or silence it (#1)
+- Resolve the default logger on each call so a replaced `Rails.logger` is picked up
+
 ## [1.0.0.beta] - 2025-12-01
 
 - Enforce minimum support of Rails 7.2 and Ruby 3.1+ (`22910a5`)

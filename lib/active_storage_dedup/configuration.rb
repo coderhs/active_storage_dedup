@@ -29,17 +29,21 @@ module ActiveStorageDedup
     end
 
     def logger
-      @logger ||= default_logger
+      @logger || default_logger
     end
 
     private
 
+    # Resolved on every call (not memoized) so a Rails.logger that is
+    # replaced or assigned after first use is still picked up.
     def default_logger
-      if defined?(Rails) && Rails.logger
-        Rails.logger
-      else
-        Logger.new($stdout)
-      end
+      return Rails.logger if defined?(Rails) && Rails.logger
+
+      fallback_logger
+    end
+
+    def fallback_logger
+      @fallback_logger ||= Logger.new($stdout)
     end
   end
 
